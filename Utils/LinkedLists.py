@@ -6,7 +6,7 @@
 # [
 # <nombre_tabla>: {
 #  {
-#    <id>{
+#    <id>: {
 #    <campos>:<valores>
 #    }
 #  }
