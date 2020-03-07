@@ -1,5 +1,7 @@
 # PreAlpha a Python Simple Database Engine
 
+- <a href="https://github.com/harpiechoise/Python-Database-Engine/blob/master/Other%20Languages/spanish.md"> Version en español </a>
+
 ## Developer Documentation
 
 ### Description
