@@ -187,6 +187,9 @@ class CharField(BaseField):
         else:
             raise TypeError(self._make_err_msg(value, self._instance))
 
+    def _type_name(self):
+        return f"Charfield(@name={self.name}, @maxlen={self.maxlen})"
+
     def __repr__(self) -> str:
         return (f"<CharField value={self.value}, maxlen={self.maxlen}" +
                 f"at {hex(id(self))}>")
@@ -397,6 +400,22 @@ class CharField(BaseField):
 
 
 class IntegerField(BaseField):
+    '''
+    IntegerField
+        This is the Base Type for all Integer Fields
+
+    Attributes
+    ----------
+        name
+            Is the name of the field for the creation is for
+            the json Creation following the structure
+                <self.name>:<value>
+        value
+            Is the value of the field
+
+        capabilities
+            All the capabilities of native Python Integer Type
+    '''
     def __init__(self, name):
         super().__init__(name, int)
 
@@ -410,6 +429,9 @@ class IntegerField(BaseField):
             self._value = value
         else:
             raise TypeError(self._make_err_msg(value, self._instance))
+
+    def _type_name(self):
+        return f"IntegerField(@name={self.name})"
 
     def __eq__(self, other: int) -> bool:
         if isinstance(other, self._instance):
@@ -595,7 +617,7 @@ class IntegerField(BaseField):
     def __rdivmod__(self, other):
         if isinstance(other, self._instance):
             return divmod(other, self.value)
-        elif isinstance(self.value, type(self)):
+        elif isinstance(value, type(self)):
             return divmod(other.value, self.value)
         else:
             raise TypeError("Cannot use the \"divmod\" operator with types:" +
@@ -626,6 +648,54 @@ class IntegerField(BaseField):
             return self.value >> other.value
         else:
             raise TypeError("Cannot use the \">>\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __pos__(self):
+        if self.value < 0:
+            return ~self.value + 1
+        else:
+            return self.value
+
+    def __neg__(self):
+        if self.value > 0:
+            return ~self.value + 1
+        else:
+            return self.value
+
+    def __abs__(self):
+        if self.value < 0:
+            return ~self.value + 1
+        else:
+            return self.value
+
+    def __invert__(self):
+        return ~self.value
+
+    def __and__(self, other):
+        if isinstance(other, self._instance):
+            return self.value & other
+        elif isinstance(other, type(self)):
+            return self.value & other.value
+        else:
+            raise TypeError("Cannot use the \"&\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __or__(self, other):
+        if isinstance(self.value, self._instance):
+            return self.value | other
+        elif isinstance(other, type(self)):
+            return self.value | other.value
+        else:
+            raise TypeError("Cannot use the \"|\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __xor__(self, other):
+        if isinstance(self.value, self._instance):
+            return self.value ^ other
+        elif isinstance(other, type(self)):
+            return self.value ^ other.value
+        else:
+            raise TypeError("Cannot use the \"^\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
 
@@ -662,6 +732,7 @@ if __name__ == "__main__":
     n1 = IntegerField("num1")
     n2 = IntegerField("num2")
     n3 = IntegerField("num3")
+    n4 = IntegerField("num4")
     try:
         n1.value = "hola"
     except Exception as e:
@@ -671,10 +742,12 @@ if __name__ == "__main__":
         n1.value = 20
         n2.value = 20
         n3.value = 10
+        n4.value = -10
     # IN
     print("N1", n1)
     print("N2", n2)
     print("N3", n3)
+    print("N4", n4)
     print("¿Es igual N1 a N2?:", n1 == n2)
     print("¿Es igual N1 a N3?:", n1 == n3)
     print("¿Es mas grande N1 a N3?:", n1 > n3)
@@ -688,7 +761,12 @@ if __name__ == "__main__":
     print("Exponenciacion N3 ** N1:", n3 ** n1)
     print("Left Shift N3 << N1:", n3 << n1)
     print("Rigth Shift N3 >> N1:", n3 >> n1)
-
+    print("~N1:", ~n1)
+    print("+N1:", +n1)
+    print("-N1:", -n1)
+    print("+N4:", +n4)
+    print("-N4:", -n4)
+    print("N1 | N2", n1 | n2)
     # OUT
     # ¿Es igual N1 a N2?: True
     # ¿Es igual N1 a N3?: False
@@ -708,3 +786,4 @@ if __name__ == "__main__":
     # ~ Logical Not
     # & Logical And
     # | Logical Or
+    # ^ XOR

@@ -1,0 +1,22 @@
+{
+	"0": {
+		"nombre": "Jaime",
+		"edad": 21
+	},
+	"1": {
+		"nombre": "Norma",
+		"edad": 60
+	},
+	"2": {
+		"nombre": "Tomy",
+		"edad": 40
+	},
+	"3": {
+		"nombre": "Seba",
+		"edad": 25
+	},
+	"4": {
+		"nombre": "Zuilt",
+		"edad": 25
+	}
+}

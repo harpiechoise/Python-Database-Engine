@@ -127,10 +127,9 @@ class BaseList:
             Instance Type, is for avoid bugs.
 
     '''
-    def __init__(self, genesis: BaseNode, instance=BaseNode):
-        self.elements = None
+    def __init__(self, genesis: BaseNode):
+        self.elements = 0
         self._first_node: BaseNode = genesis
-        self._instance = instance
 
     @property
     def first_node(self) -> BaseNode:
@@ -138,10 +137,7 @@ class BaseList:
 
     @first_node.setter
     def first_node(self, node: BaseNode):
-        if isinstance(node, self._instance):
-            self._first_node = node
-        else:
-            raise NODE_TYPE_ERROR
+        self._first_node = node
 
     def del_first_node(self):
         self._first_node = None
@@ -162,6 +158,16 @@ class BaseList:
         else:
             return node_before
 
+    def _count_nodes(self):
+        self.elements = 0
+        if not self._first_node:
+            self.elements = 0
+            return
+        node = self.first_node
+        while node:
+            self.elements += 1
+            node = node.next_node
+
     def insert_after(self, node: BaseNode, new_node: BaseNode):
         if node.next_node:
             new_node.next_node = node.next_node
@@ -170,20 +176,18 @@ class BaseList:
             raise NODE_ASSERT_ERROR
 
     def insert_last(self, new_node: BaseNode):
-        if isinstance(new_node, self._instance):
-            node = self.move_forward()
-            self.elements = node.node_id + 1
-            new_node.node_id = self.elements
-            node.next_node = new_node
-        else:
-            raise NODE_TYPE_ERROR
+        node = self.move_forward()
+        self.elements = node.node_id + 1
+        new_node.node_id = self.elements
+        node.next_node = new_node
 
     def insert_first(self, new_node: BaseNode):
-        if isinstance(new_node, self._instance):
-            new_node.next = self.first_node
+
+        if not self.first_node:
             self.first_node = new_node
         else:
-            raise NODE_TYPE_ERROR
+            new_node.next = self.first_node
+            self.first_node = new_node
 
     def remove_after(self, node: BaseNode):
         if node.next_node.next_node:
