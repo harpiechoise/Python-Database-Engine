@@ -782,8 +782,3 @@ if __name__ == "__main__":
     # Left Shift N3 << N1: 10485760
     # Rigth Shift N3 >> N1: 0
 
-    # Falta
-    # ~ Logical Not
-    # & Logical And
-    # | Logical Or
-    # ^ XOR

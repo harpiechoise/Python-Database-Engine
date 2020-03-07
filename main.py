@@ -1,19 +1,17 @@
-from Schema.Table import Cliente
+from Schema.Table import Table
+from Utils.Fields import *
+
+
+class Client(Table):
+    def __init__(self):
+        # fields declaration first
+        self.client_name = CharField(name="Client Name", maxlen=20)
+        self.age = IntegerField(name="Age")
+        super().__init__(table_name="Client_Data")
+
+
 if __name__ == "__main__":
-    a = Cliente()
-    a.nombre.value = "Jaime"
-    a.edad.value = 21
-    a.save()
-    a.nombre.value = "Norma"
-    a.edad.value = 60
-    a.save()
-    a.nombre.value = "Tomy"
-    a.edad.value = 40
-    a.save()
-    a.nombre.value = "Seba"
-    a.edad.value = 25
-    a.save()
-    a.nombre.value = "Zuilt"
-    a.nombre.edad = 1500
-    a.save()
-    a.migrate()
+    a = Client()
+
+    print(a.summary())
+
