@@ -1,18 +1,21 @@
-"""
-Estructura a conseguir
-DB.locdb
-[
-<nombre_tabla>: {
-  {
-    id: 1
-    <campos>:<valores>
-  }
-}
-]
+# Mi vision de como deberia ser la estructura básica
+# Del motor de Base de Datos
+# Estructura a conseguir
+# DB.locdb
+# Basado en JSON
+# [
+# <nombre_tabla>: {
+#  {
+#    <id>{
+#    <campos>:<valores>
+#    }
+#  }
+# }
+# ]
 
-LinkedList ?
-LinkedList Bidireccional se ha dicho
-"""
+# LinkedList ?
+# LinkedList Bidireccional se ha dicho
+
 NODE_TYPE_ERROR = TypeError("The linked list only admits Node types objects")
 NODE_ASSERT_ERROR = AssertionError("Cannot insert a Node after last node" +
                                    " use insert_last instead.")
