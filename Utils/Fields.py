@@ -258,6 +258,15 @@ class CharField(BaseField):
             raise TypeError("Cannot use the \"+\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
+    def __radd__(self, other: str) -> str:
+        if isinstance(other, self._instance):
+            return other + self.value
+        elif isinstance(other, type(self)):
+            return other.value + self.value
+        else:
+            raise TypeError("Cannot use the \"+\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
     def __sub__(self, other: int) -> bool:
         raise TypeError("Cannot use the \"-\" operator with types:" +
                         f"{type_stringify(self)} {type_stringify(other)}")
@@ -265,6 +274,13 @@ class CharField(BaseField):
     def __mul__(self, other: int) -> bool:
         if isinstance(other, int):
             return self.value * other
+        else:
+            raise TypeError("Expected an Integer but recibed an {}"
+                            .format(type_stringify(other)))
+
+    def __rmul__(self, other: int) -> bool:
+        if isinstance(other, int):
+            return other * self.value
         else:
             raise TypeError("Expected an Integer but recibed an {}"
                             .format(type_stringify(other)))
@@ -339,13 +355,6 @@ class CharField(BaseField):
     def __sub__(self, other: int) -> bool:
         raise TypeError("Cannot use the \"-\" operator with types:" +
                         f"{type_stringify(self)} {type_stringify(other)}")
-
-    def __mul__(self, other: int) -> bool:
-        if isinstance(other, int):
-            return self.value * other
-        else:
-            raise TypeError("Expected an Integer but recibed an {}"
-                            .format(type_stringify(other)))
 
     def __div__(self, other: int) -> NotImplemented:
         raise TypeError("Cannot use the \"/\" operator with types:" +
@@ -433,7 +442,7 @@ class IntegerField(BaseField):
         if isinstance(other, self._instance):
             return self.value > other
         elif isinstance(other, type(self)):
-            return self.value > len(other.value)
+            return self.value > other.value
         else:
             raise TypeError("Cannot use the \">\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
@@ -449,9 +458,9 @@ class IntegerField(BaseField):
 
     def __ge__(self, other: int) -> bool:
         if isinstance(other, self._instance):
-            return len(self.value) <= len(other)
+            return self.value <= other
         elif isinstance(other, type(self)):
-            return len(self.value) <= len(other.value)
+            return self.value <= other.value
         else:
             raise TypeError("Cannot use the \">=\" operator with types:" +
                             f"{type_stringify(type(self))}" +
@@ -513,7 +522,7 @@ class IntegerField(BaseField):
 
     def __divmod__(self, other):
         if isinstance(other, self._instance):
-            return divmod(other, other)
+            return divmod(self.value, other)
         elif isinstance(self.value, type(self)):
             return divmod(self.value, other.value)
         else:
@@ -525,6 +534,78 @@ class IntegerField(BaseField):
             return self.value ** other
         elif isinstance(other, type(self)):
             return self.value ** other.value
+        else:
+            raise TypeError("Cannot use the \"**\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __radd__(self, other):
+        if isinstance(other, self._instance):
+            return other + self.value
+        elif isinstance(other, type(self)):
+            return other.value + self.value
+        else:
+            raise TypeError("Cannot use the \"+\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rsub__(self, other):
+        if isinstance(other, self._instance):
+            return other - self.value
+        elif isinstance(other, type(self)):
+            return other.value - self.value
+        else:
+            raise TypeError("Cannot use the \"-\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rmult__(self, other):
+        if isinstance(other, self._instance):
+            return other * self.value
+        elif isinstance(other, type(self)):
+            return other.value * self.value
+        else:
+            raise TypeError("Cannot use the \"*\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rtruediv__(self, other):
+        if isinstance(other, self._instance):
+            return other / self.value
+        elif isinstance(other, type(self)):
+            return other.value / self.value
+        else:
+            raise TypeError("Cannot use the \"/\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rfloordiv__(self, other):
+        if isinstance(other, self._instance):
+            return other // self.value
+        elif isinstance(other, type(self)):
+            return other.value // self.value
+        else:
+            raise TypeError("Cannot use the \"//\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rmod__(self, other):
+        if isinstance(other, self._instance):
+            return other % self.value
+        elif isinstance(other, type(self)):
+            return other.value % self.value
+        else:
+            raise TypeError("Cannot use the \"%\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rdivmod__(self, other):
+        if isinstance(other, self._instance):
+            return divmod(other, self.value)
+        elif isinstance(self.value, type(self)):
+            return divmod(other.value, self.value)
+        else:
+            raise TypeError("Cannot use the \"divmod\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rpow__(self, other):
+        if isinstance(other, self._instance):
+            return other ** self.value
+        elif isinstance(other, type(self)):
+            return other.value ** self.value
         else:
             raise TypeError("Cannot use the \"**\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
@@ -564,10 +645,9 @@ if __name__ == "__main__":
     print("¿Es mas grande C1 a C3?:", c1 > c3)
     print("¿Mas pequeña?:", c1 < c3)
     print("¿Longitud de C3?:", len(c3))
-    print("¿Concatenadas?:", c1 + c3)
-    print("¿C1 * 4?:", c1*4)
+    print("¿Concatenadas?:", c1 + " " + c3)
+    print("¿C1 * 4?:", c1 * 4)
 
-    # OUT
     # C1: Hola
     # C2: Hola
     # C3: ¿Hola Como Estas?
@@ -576,5 +656,55 @@ if __name__ == "__main__":
     # ¿Es mas grande C1 a C3?: False
     # ¿Mas pequeña?: True
     # ¿Longitud de C3?: 17
-    # ¿Concatenadas?: Hola¿Hola Como Estas?
+    # ¿Concatenadas?: Hola ¿Hola Como Estas?
     # ¿C1 * 4?: HolaHolaHolaHola
+
+    n1 = IntegerField("num1")
+    n2 = IntegerField("num2")
+    n3 = IntegerField("num3")
+    try:
+        n1.value = "hola"
+    except Exception as e:
+        print(e)
+        # Cannot assing a String to an Integer reference
+    finally:
+        n1.value = 20
+        n2.value = 20
+        n3.value = 10
+    # IN
+    print("N1", n1)
+    print("N2", n2)
+    print("N3", n3)
+    print("¿Es igual N1 a N2?:", n1 == n2)
+    print("¿Es igual N1 a N3?:", n1 == n3)
+    print("¿Es mas grande N1 a N3?:", n1 > n3)
+    print("¿Mas pequeño?:", n1 < n3)
+    print("¿Es mas mayor o igual N1 a N2?:", n1 >= n2)
+    print("Es Menor o Igual N1 a N3", n1 <= n3)
+    print("Suma N1 + N3:", n1 + n3)
+    print("Resta N1 - N3:", n1 - n3)
+    print("Division N3 / N1:", n3 / n1)
+    print("DivFloor N1 // N3:", n1 // n3)
+    print("Exponenciacion N3 ** N1:", n3 ** n1)
+    print("Left Shift N3 << N1:", n3 << n1)
+    print("Rigth Shift N3 >> N1:", n3 >> n1)
+
+    # OUT
+    # ¿Es igual N1 a N2?: True
+    # ¿Es igual N1 a N3?: False
+    # ¿Es mas grande N1 a N3?: True
+    # ¿Mas pequeño?: False
+    # ¿Es mas mayor o igual N1 a N2?: True
+    # Es Menor o Igual N1 a N3 False
+    # Suma N1 + N3: 30
+    # Resta N1 - N3: 10
+    # Division N3 / N1: 0.5
+    # DivFloor N1 // N3: 2
+    # Exponenciacion N3 ** N1: 100000000000000000000
+    # Left Shift N3 << N1: 10485760
+    # Rigth Shift N3 >> N1: 0
+
+    # Falta
+    # ~ Logical Not
+    # & Logical And
+    # | Logical Or
