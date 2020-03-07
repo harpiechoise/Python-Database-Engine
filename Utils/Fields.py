@@ -1,5 +1,5 @@
-def type_stringify(dataType: any) -> str:
-    ''''
+def type_stringify(dataType: any, is_type: bool = False) -> str:
+    '''
     type_stringify:
         This is an utility for exception handling
         this function allows to raise pretty exceptions
@@ -10,9 +10,11 @@ def type_stringify(dataType: any) -> str:
         Is a variable of any Kind this function will
         evaluate the type of this value and return a
         pretty formatted string
-    ''''
+    '''
 
-    dataType = type(dataType)
+    if not is_type:
+        dataType = type(dataType)
+
     if str(dataType) == "<class 'str'>":
         return "String"
     elif str(dataType) == "<class 'NoneType'>":
@@ -46,7 +48,7 @@ def type_stringify(dataType: any) -> str:
 
 
 class BaseField():
-    ''''
+    '''
     BaseField Class
         This class is the base to build fields that node
         and DBManager can handle, this contain all the
@@ -78,17 +80,17 @@ class BaseField():
         TypeError
             When the DataType of the value missmatch with the value of
             the instance, an TypeError will be raised.
-    ''''
+    '''
     def __init__(self,
-                 name: any = None,
+                 name: str = None,
                  instance: any = type(None)):
         self._instance = instance
         self.name = name
 
     @staticmethod
     def _make_err_msg(value, instance) -> str:
-        instance = type_stringify(instance)
-        value = type_stringify(type(value))
+        instance = type_stringify(instance, is_type=True)
+        value = type_stringify(value)
         return ("Cannot assing a {} ".format(value) +
                 " to an {} reference".format(instance).strip())
 
@@ -109,7 +111,7 @@ class BaseField():
 
 
 class CharField(BaseField):
-    ''''
+    '''
     Charfield Class
         This is the String Datatype of the DBEngine
         this fields gives the nodes the capability
@@ -156,11 +158,11 @@ class CharField(BaseField):
             - Most of built-in Methods
 
         The equality Method is implemented for search purposes
-    ''''
+    '''
+
     def __init__(self, name: str, maxlen: int):
         super().__init__(name, str)
         self.maxlen = maxlen
-        self._value = None
 
     @property
     def value(self) -> str:
@@ -178,8 +180,8 @@ class CharField(BaseField):
             raise TypeError(self._make_err_msg(maxlen, int))
 
     @value.setter
-    def value(self, value: str):
-        if isinstance(value, str) and\
+    def value(self, value):
+        if isinstance(value, self._instance) and\
            self._max_len_checker(value, self.maxlen):
             self._value = value
         else:
@@ -193,36 +195,36 @@ class CharField(BaseField):
         return len(self.value)
 
     def __eq__(self, other: str) -> bool:
-        if isinstance(value, str):
+        if isinstance(other, self._instance):
             return self.value == other
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return self.value == other.value
         else:
             raise TypeError("Cannot use the \"==\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
     def __ne__(self, other: str) -> bool:
-        if isinstance(value, str):
+        if isinstance(other, self._instance):
             return self.value != other
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return self.value != other.value
         else:
             raise TypeError("Cannot use the \"!=\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
     def __lt__(self, other: str) -> bool:
-        if isinstance(value, str):
+        if isinstance(other, str):
             return len(self.value) < len(other)
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return len(self.value) < len(other.value)
         else:
             raise TypeError("Cannot use the \"<\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
     def __gt__(self, other: str) -> bool:
-        if isinstance(value, str):
+        if isinstance(other, str):
             return len(self.value) > len(other)
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return len(self.value) > len(other.value)
         else:
             raise TypeError("Cannot use the \">\" operator with types:" +
@@ -231,7 +233,7 @@ class CharField(BaseField):
     def __le__(self, other: str) -> bool:
         if isinstance(other, str):
             return len(self.value) <= len(other)
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return len(self.value) <= len(other.value)
         else:
             raise TypeError("Cannot use the \"<=\" operator with types:" +
@@ -240,17 +242,95 @@ class CharField(BaseField):
     def __ge__(self, other: str) -> bool:
         if isinstance(other, str):
             return len(self.value) <= len(other)
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
             return len(self.value) <= len(other.value)
         else:
             raise TypeError("Cannot use the \">=\" operator with types:" +
-                            f"{type_stringify(type(self))}" +
-                            f"{type_stringify(type(other))}")
+                            f"{type_stringify(self)}" +
+                            f"{type_stringify(other)}")
 
     def __add__(self, other: str) -> str:
-        if isinstance(value, str):
+        if isinstance(other, self._instance):
             return self.value + other
-        elif isinstance(value, type(self)):
+        elif isinstance(other, type(self)):
+            return self.value + other.value
+        else:
+            raise TypeError("Cannot use the \"+\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __sub__(self, other: int) -> bool:
+        raise TypeError("Cannot use the \"-\" operator with types:" +
+                        f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __mul__(self, other: int) -> bool:
+        if isinstance(other, int):
+            return self.value * other
+        else:
+            raise TypeError("Expected an Integer but recibed an {}"
+                            .format(type_stringify(other)))
+
+    def __len__(self) -> int:
+        return len(self.value)
+
+    def __eq__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return self.value == other
+        elif isinstance(other, type(self)):
+            return self.value == other.value
+        else:
+            raise TypeError("Cannot use the \"=name=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __ne__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return self.value != other
+        elif isinstance(other, type(self)):
+            return self.value != other.value
+        else:
+            raise TypeError("Cannot use the \"!=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __lt__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) < len(other)
+        elif isinstance(other, type(self)):
+            return len(self.value) < len(other.value)
+        else:
+            raise TypeError("Cannot use the \"<\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __gt__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) > len(other)
+        elif isinstance(other, type(self)):
+            return len(self.value) > len(other.value)
+        else:
+            raise TypeError("Cannot use the \">\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __le__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) <= len(other)
+        elif isinstance(other, type(self)):
+            return len(self.value) <= len(other.value)
+        else:
+            raise TypeError("Cannot use the \"<=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __ge__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) <= len(other)
+        elif isinstance(other, type(self)):
+            return len(self.value) <= len(other.value)
+        else:
+            raise TypeError("Cannot use the \">=\" operator with types:" +
+                            f"{type_stringify(self)}" +
+                            f"{type_stringify(other)}")
+
+    def __add__(self, other: str) -> str:
+        if isinstance(other, self._instance):
+            return self.value + other
+        elif isinstance(other, type(self)):
             return self.value + other.value
         else:
             raise TypeError("Cannot use the \"+\" operator with types:" +
@@ -282,18 +362,34 @@ class CharField(BaseField):
     def __pow__(self, other: int) -> NotImplemented:
         raise TypeError("Cannot use the \"**\" operator with types:" +
                         f"{type_stringify(self)} {type_stringify(other)}")
+        raise TypeError("Cannot use the \"/\" operator with types:" +
+                        f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __floordiv__(self, other: int) -> NotImplemented:
+        raise TypeError("Cannot use the \"//\" operator with types:" +
+                        f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __mod__(self, other: int) -> NotImplemented:
+        raise TypeError("Cannot use the \"//\" operator with types:" +
+                        f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __pow__(self, other: int) -> NotImplemented:
+        raise TypeError("Cannot use the \"**\" operator with types:" +
+                        f"{type_stringify(self)} {type_stringify(other)}")
 
     @staticmethod
     def _max_len_checker(value: str, maxlen: int):
         if len(value) > maxlen:
             raise AssertionError(f"Cannot fit a string of length: " +
                                  f"{len(value)} in a fixed length of {maxlen}")
+            return None
+        else:
+            return True
 
 
-class PositiveIntegerField(BaseField):
-    def __init__(self, name, instance):
-        super().__init__(name, instance)
-        self._value = None
+class IntegerField(BaseField):
+    def __init__(self, name):
+        super().__init__(name, int)
 
     @property
     def value(self):
@@ -306,6 +402,179 @@ class PositiveIntegerField(BaseField):
         else:
             raise TypeError(self._make_err_msg(value, self._instance))
 
+    def __eq__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return self.value == other
+        elif isinstance(other, type(self)):
+            return self.value == other.value
+        else:
+            raise TypeError("Cannot use the \"=name=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __ne__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return self.value != other
+        elif isinstance(other, type(self)):
+            return self.value != other.value
+        else:
+            raise TypeError("Cannot use the \"!=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __lt__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return self.value < other
+        elif isinstance(other, type(self)):
+            return self.value < other.value
+        else:
+            raise TypeError("Cannot use the \"<\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __gt__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return self.value > other
+        elif isinstance(other, type(self)):
+            return self.value > len(other.value)
+        else:
+            raise TypeError("Cannot use the \">\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __le__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return self.value <= other
+        elif isinstance(other, type(self)):
+            return self.value <= other.value
+        else:
+            raise TypeError("Cannot use the \"<=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __ge__(self, other: int) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) <= len(other)
+        elif isinstance(other, type(self)):
+            return len(self.value) <= len(other.value)
+        else:
+            raise TypeError("Cannot use the \">=\" operator with types:" +
+                            f"{type_stringify(type(self))}" +
+                            f"{type_stringify(type(other))}")
+
+    def __add__(self, other):
+        if isinstance(other, self._instance):
+            return self.value + other
+        elif isinstance(other, type(self)):
+            return self.value + other.value
+        else:
+            raise TypeError("Cannot use the \"+\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __sub__(self, other):
+        if isinstance(other, self._instance):
+            return self.value - other
+        elif isinstance(other, type(self)):
+            return self.value - other.value
+        else:
+            raise TypeError("Cannot use the \"-\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __mult__(self, other):
+        if isinstance(other, self._instance):
+            return self.value * other
+        elif isinstance(other, type(self)):
+            return self.value * other.value
+        else:
+            raise TypeError("Cannot use the \"*\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __truediv__(self, other):
+        if isinstance(other, self._instance):
+            return self.value / other
+        elif isinstance(other, type(self)):
+            return self.value / other.value
+        else:
+            raise TypeError("Cannot use the \"/\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __floordiv__(self, other):
+        if isinstance(other, self._instance):
+            return self.value // other
+        elif isinstance(other, type(self)):
+            return self.value // other.value
+        else:
+            raise TypeError("Cannot use the \"//\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __mod__(self, other):
+        if isinstance(other, self._instance):
+            return self.value % other
+        elif isinstance(other, type(self)):
+            return self.value % other.value
+        else:
+            raise TypeError("Cannot use the \"%\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __divmod__(self, other):
+        if isinstance(other, self._instance):
+            return divmod(other, other)
+        elif isinstance(self.value, type(self)):
+            return divmod(self.value, other.value)
+        else:
+            raise TypeError("Cannot use the \"divmod\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __pow__(self, other):
+        if isinstance(other, self._instance):
+            return self.value ** other
+        elif isinstance(other, type(self)):
+            return self.value ** other.value
+        else:
+            raise TypeError("Cannot use the \"**\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __lshift__(self, other):
+        if isinstance(other, self._instance):
+            return self.value << other
+        elif isinstance(other, type(self)):
+            return self.value << other.value
+        else:
+            raise TypeError("Cannot use the \"<<\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
+    def __rshift__(self, other):
+        if isinstance(other, self._instance):
+            return self.value >> other
+        elif isinstance(other, type(self)):
+            return self.value >> other.value
+        else:
+            raise TypeError("Cannot use the \">>\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
+
 
 if __name__ == "__main__":
-    pass
+    # IN
+    c1 = CharField("Saludo", 4)
+    c1.value = "Hola"
+    c2 = CharField("Saludo2", 4)
+    c2.value = "Hola"
+    c3 = CharField("Saludo3", 17)
+    c3.value = "¿Hola Como Estas?"
+    print("C1:", c1)
+    print("C2:", c2)
+    print("C3:", c3)
+    print("¿Es igual C1 a C2?:", c1 == c2)
+    print("¿Es igual C1 a C3?:", c1 == c3)
+    print("¿Es mas grande C1 a C3?:", c1 > c3)
+    print("¿Mas pequeña?:", c1 < c3)
+    print("¿Longitud de C3?:", len(c3))
+    print("¿Concatenadas?:", c1 + c3)
+    print("¿C1 * 4?:", c1*4)
+
+    # OUT
+    # C1: Hola
+    # C2: Hola
+    # C3: ¿Hola Como Estas?
+    # ¿Es igual C1 a C2?: True
+    # ¿Es igual C1 a C3?: False
+    # ¿Es mas grande C1 a C3?: False
+    # ¿Mas pequeña?: True
+    # ¿Longitud de C3?: 17
+    # ¿Concatenadas?: Hola¿Hola Como Estas?
+    # ¿C1 * 4?: HolaHolaHolaHola
