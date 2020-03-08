@@ -84,11 +84,15 @@ class BaseField():
     def __init__(self,
                  name: str = None,
                  instance: any = type(None)):
+        # The strict Datatype Allowed
+        # For this node Type
         self._instance = instance
+        # The name of the field
         self.name = name
 
     @staticmethod
     def _make_err_msg(value, instance) -> str:
+        # And utility for generate the most common err message
         instance = type_stringify(instance, is_type=True)
         value = type_stringify(value)
         return ("Cannot assing a {} ".format(value) +
@@ -100,12 +104,14 @@ class BaseField():
 
     @name.setter
     def name(self, value: str):
+        # Type Strict
         if isinstance(value, str):
             self._value = value
         else:
             raise TypeError(f"String expected but got:" +
                             f"{self._make_err_msg(value)}")
 
+    # The string Representation
     def __str__(self) -> str:
         return str(self.value)
 
@@ -181,6 +187,7 @@ class CharField(BaseField):
 
     @value.setter
     def value(self, value):
+        # Type Strict
         if isinstance(value, self._instance) and\
            self._max_len_checker(value, self.maxlen):
             self._value = value
@@ -188,8 +195,13 @@ class CharField(BaseField):
             raise TypeError(self._make_err_msg(value, self._instance))
 
     def _type_name(self):
+        # A representation for the summary
         return f"Charfield(@name={self.name}, @maxlen={self.maxlen})"
 
+    # DUNDER
+    # DUNDER
+    # DUNDEEEER
+    # https://docs.python.org/3/reference/datamodel.html
     def __repr__(self) -> str:
         return (f"<CharField value={self.value}, maxlen={self.maxlen}" +
                 f"at {hex(id(self))}>")
@@ -425,10 +437,15 @@ class IntegerField(BaseField):
 
     @value.setter
     def value(self, value):
+        # Type Strict ;-;
         if isinstance(value, self._instance):
             self._value = value
         else:
             raise TypeError(self._make_err_msg(value, self._instance))
+    # DUNDER
+    # DUNDER
+    # DUNDEEEER
+    # https://docs.python.org/3/reference/datamodel.html
 
     def _type_name(self):
         return f"IntegerField(@name={self.name})"
@@ -700,7 +717,9 @@ class IntegerField(BaseField):
 
 
 if __name__ == "__main__":
+    # An ugly unit testing xD
     # IN
+    # TODO: Test File
     c1 = CharField("Saludo", 4)
     c1.value = "Hola"
     c2 = CharField("Saludo2", 4)
@@ -781,4 +800,3 @@ if __name__ == "__main__":
     # Exponenciacion N3 ** N1: 100000000000000000000
     # Left Shift N3 << N1: 10485760
     # Rigth Shift N3 >> N1: 0
-
