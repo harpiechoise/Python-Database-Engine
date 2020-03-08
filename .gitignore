@@ -1,3 +1,6 @@
 .vscode/
 Utils/__pycache__
 Schema/__pycache__
+test/__pycache__
+.DB/
+.pytest_cache/

@@ -180,6 +180,8 @@ class CharField(BaseField):
 
     @maxlen.setter
     def maxlen(self, maxlen: int):
+        if maxlen <= 0:
+            raise AssertionError("Lenght cannot be negative or zero")
         if isinstance(maxlen, int):
             self._maxlen = maxlen
         else:
@@ -204,7 +206,7 @@ class CharField(BaseField):
     # https://docs.python.org/3/reference/datamodel.html
     def __repr__(self) -> str:
         return (f"<CharField value={self.value}, maxlen={self.maxlen}" +
-                f"at {hex(id(self))}>")
+                f" at {hex(id(self))}>")
 
     def __len__(self) -> int:
         return len(self.value)
@@ -256,9 +258,9 @@ class CharField(BaseField):
 
     def __ge__(self, other: str) -> bool:
         if isinstance(other, str):
-            return len(self.value) <= len(other)
+            return len(self.value) >= len(other)
         elif isinstance(other, type(self)):
-            return len(self.value) <= len(other.value)
+            return len(self.value) >= len(other.value)
         else:
             raise TypeError("Cannot use the \">=\" operator with types:" +
                             f"{type_stringify(self)}" +
@@ -339,25 +341,6 @@ class CharField(BaseField):
             raise TypeError("Cannot use the \">\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
-    def __le__(self, other: str) -> bool:
-        if isinstance(other, self._instance):
-            return len(self.value) <= len(other)
-        elif isinstance(other, type(self)):
-            return len(self.value) <= len(other.value)
-        else:
-            raise TypeError("Cannot use the \"<=\" operator with types:" +
-                            f"{type_stringify(self)} {type_stringify(other)}")
-
-    def __ge__(self, other: str) -> bool:
-        if isinstance(other, self._instance):
-            return len(self.value) <= len(other)
-        elif isinstance(other, type(self)):
-            return len(self.value) <= len(other.value)
-        else:
-            raise TypeError("Cannot use the \">=\" operator with types:" +
-                            f"{type_stringify(self)}" +
-                            f"{type_stringify(other)}")
-
     def __add__(self, other: str) -> str:
         if isinstance(other, self._instance):
             return self.value + other
@@ -372,20 +355,6 @@ class CharField(BaseField):
                         f"{type_stringify(self)} {type_stringify(other)}")
 
     def __div__(self, other: int) -> NotImplemented:
-        raise TypeError("Cannot use the \"/\" operator with types:" +
-                        f"{type_stringify(self)} {type_stringify(other)}")
-
-    def __floordiv__(self, other: int) -> NotImplemented:
-        raise TypeError("Cannot use the \"//\" operator with types:" +
-                        f"{type_stringify(self)} {type_stringify(other)}")
-
-    def __mod__(self, other: int) -> NotImplemented:
-        raise TypeError("Cannot use the \"//\" operator with types:" +
-                        f"{type_stringify(self)} {type_stringify(other)}")
-
-    def __pow__(self, other: int) -> NotImplemented:
-        raise TypeError("Cannot use the \"**\" operator with types:" +
-                        f"{type_stringify(self)} {type_stringify(other)}")
         raise TypeError("Cannot use the \"/\" operator with types:" +
                         f"{type_stringify(self)} {type_stringify(other)}")
 
@@ -453,9 +422,15 @@ class IntegerField(BaseField):
     def __eq__(self, other: int) -> bool:
         if isinstance(other, self._instance):
             return self.value == other
+
+    def __le__(self, other: str) -> bool:
+        if isinstance(other, self._instance):
+            return len(self.value) <= len(other)
         elif isinstance(other, type(self)):
-            return self.value == other.value
+            return len(self.value) <= len(other.value)
         else:
+            raise TypeError("Cannot use the \"<=\" operator with types:" +
+                            f"{type_stringify(self)} {type_stringify(other)}")
             raise TypeError("Cannot use the \"=name=\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
 
@@ -714,89 +689,3 @@ class IntegerField(BaseField):
         else:
             raise TypeError("Cannot use the \"^\" operator with types:" +
                             f"{type_stringify(self)} {type_stringify(other)}")
-
-
-if __name__ == "__main__":
-    # An ugly unit testing xD
-    # IN
-    # TODO: Test File
-    c1 = CharField("Saludo", 4)
-    c1.value = "Hola"
-    c2 = CharField("Saludo2", 4)
-    c2.value = "Hola"
-    c3 = CharField("Saludo3", 17)
-    c3.value = "¿Hola Como Estas?"
-    print("C1:", c1)
-    print("C2:", c2)
-    print("C3:", c3)
-    print("¿Es igual C1 a C2?:", c1 == c2)
-    print("¿Es igual C1 a C3?:", c1 == c3)
-    print("¿Es mas grande C1 a C3?:", c1 > c3)
-    print("¿Mas pequeña?:", c1 < c3)
-    print("¿Longitud de C3?:", len(c3))
-    print("¿Concatenadas?:", c1 + " " + c3)
-    print("¿C1 * 4?:", c1 * 4)
-
-    # C1: Hola
-    # C2: Hola
-    # C3: ¿Hola Como Estas?
-    # ¿Es igual C1 a C2?: True
-    # ¿Es igual C1 a C3?: False
-    # ¿Es mas grande C1 a C3?: False
-    # ¿Mas pequeña?: True
-    # ¿Longitud de C3?: 17
-    # ¿Concatenadas?: Hola ¿Hola Como Estas?
-    # ¿C1 * 4?: HolaHolaHolaHola
-
-    n1 = IntegerField("num1")
-    n2 = IntegerField("num2")
-    n3 = IntegerField("num3")
-    n4 = IntegerField("num4")
-    try:
-        n1.value = "hola"
-    except Exception as e:
-        print(e)
-        # Cannot assing a String to an Integer reference
-    finally:
-        n1.value = 20
-        n2.value = 20
-        n3.value = 10
-        n4.value = -10
-    # IN
-    print("N1", n1)
-    print("N2", n2)
-    print("N3", n3)
-    print("N4", n4)
-    print("¿Es igual N1 a N2?:", n1 == n2)
-    print("¿Es igual N1 a N3?:", n1 == n3)
-    print("¿Es mas grande N1 a N3?:", n1 > n3)
-    print("¿Mas pequeño?:", n1 < n3)
-    print("¿Es mas mayor o igual N1 a N2?:", n1 >= n2)
-    print("Es Menor o Igual N1 a N3", n1 <= n3)
-    print("Suma N1 + N3:", n1 + n3)
-    print("Resta N1 - N3:", n1 - n3)
-    print("Division N3 / N1:", n3 / n1)
-    print("DivFloor N1 // N3:", n1 // n3)
-    print("Exponenciacion N3 ** N1:", n3 ** n1)
-    print("Left Shift N3 << N1:", n3 << n1)
-    print("Rigth Shift N3 >> N1:", n3 >> n1)
-    print("~N1:", ~n1)
-    print("+N1:", +n1)
-    print("-N1:", -n1)
-    print("+N4:", +n4)
-    print("-N4:", -n4)
-    print("N1 | N2", n1 | n2)
-    # OUT
-    # ¿Es igual N1 a N2?: True
-    # ¿Es igual N1 a N3?: False
-    # ¿Es mas grande N1 a N3?: True
-    # ¿Mas pequeño?: False
-    # ¿Es mas mayor o igual N1 a N2?: True
-    # Es Menor o Igual N1 a N3 False
-    # Suma N1 + N3: 30
-    # Resta N1 - N3: 10
-    # Division N3 / N1: 0.5
-    # DivFloor N1 // N3: 2
-    # Exponenciacion N3 ** N1: 100000000000000000000
-    # Left Shift N3 << N1: 10485760
-    # Rigth Shift N3 >> N1: 0

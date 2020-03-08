@@ -1,0 +1,8 @@
+============================= test session starts ==============================
+platform linux -- Python 3.7.2, pytest-5.3.5, py-1.8.1, pluggy-0.13.1
+rootdir: /home/jaime/Python/Ejercicios/TinB
+collected 24 items
+
+test/test_Fields.py ........................                             [100%]
+
+============================== 24 passed in 0.04s ==============================

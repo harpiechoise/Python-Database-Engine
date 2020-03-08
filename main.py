@@ -11,7 +11,4 @@ class Client(Table):
 
 
 if __name__ == "__main__":
-    a = Client()
-
-    print(a.summary())
-
+    pass
