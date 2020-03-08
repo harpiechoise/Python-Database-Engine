@@ -89,6 +89,8 @@ class BaseField():
         self._instance = instance
         # The name of the field
         self.name = name
+        # The values inits at Nonetype
+        self._value = None
 
     @staticmethod
     def _make_err_msg(value, instance) -> str:
@@ -100,13 +102,16 @@ class BaseField():
 
     @property
     def name(self) -> str:
-        return self._value
+        return self._name
 
     @name.setter
     def name(self, value: str):
+
+        if not value:
+            raise AssertionError("The name of the table is required")
         # Type Strict
         if isinstance(value, str):
-            self._value = value
+            self._name = value
         else:
             raise TypeError(f"String expected but got:" +
                             f"{self._make_err_msg(value)}")
@@ -180,6 +185,8 @@ class CharField(BaseField):
 
     @maxlen.setter
     def maxlen(self, maxlen: int):
+        if not maxlen:
+            raise AssertionError("The maxlen is a required value")
         if maxlen <= 0:
             raise AssertionError("Lenght cannot be negative or zero")
         if isinstance(maxlen, int):
